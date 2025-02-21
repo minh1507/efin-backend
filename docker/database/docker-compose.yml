@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: 10000s
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Saigon
+    ports:
+      - "10000:3306"
+    volumes:
+      - /home/storage/mariadb:/var/lib/mysql
+  mongodb:
+    image: mongo:latest
+    container_name: 10001s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: Minlvip123
+      TZ: Asia/Saigon
+    ports:
+      - "10010:27017"
+    volumes:
+      - /home/storage/mongodb:/data/db
+  minio:
+    image: minio/minio:latest
+    container_name: 20000s_20001s
+    environment:
+      MINIO_ROOT_USER: admin123
+      MINIO_ROOT_PASSWORD: Minlvip123!
+      TZ: Asia/Saigon
+    ports:
+      - "20000:9000"
+      - "20001:9001"
+    volumes:
+      - /home/storage/miniodb:/data
+    command: minio server /data --address ":9000" --console-address ":9001"
+
+volumes:
+  mariadb_data:
+  mongodb_data:
+  minio_data:

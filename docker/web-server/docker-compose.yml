@@ -1,0 +1,13 @@
+services:
+  nginx-rozy-auth-be:
+    image: nginx:latest
+    ports:
+      - "10100:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - local
+
+networks:
+  local:
+    external: true
