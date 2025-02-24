@@ -31,16 +31,4 @@ export abstract class BaseEntity extends RootEntity {
     nullable: false,
   })
   name: string;
-
-  @Column('boolean', { default: true })
-  displayIconCreate?: boolean;
-
-  @Column('boolean', { default: true })
-  displayIconUpdate?: boolean;
-
-  @Column('boolean', { default: true })
-  displayIconDelete?: boolean;
-
-  @Column('boolean', { default: true })
-  displayIconDetail?: boolean;
 }

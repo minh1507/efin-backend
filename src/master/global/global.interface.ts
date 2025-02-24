@@ -16,6 +16,11 @@ interface IGlobal {
   ['MINIO.END_POINT']: string;
   ['MINIO.PORT']: string;
   ['MINIO.SECRET_KEY']: string;
+  ['TOKEN.SECRET.KEY']: string;
+  ['TOKEN.ACCESS.KEY.EXPIRED']: string;
+  ['TOKEN.REFRESH.KEY.EXPIRED']: string;
+  ['REDIS.HOST']: string;
+  ['REDIS.PORT']: string;
 }
 
 export default IGlobal;

@@ -1,19 +1,14 @@
 import { Ethnic } from 'src/module/v1/stc/category/ethnic/ethnic.entity';
-import { DataSource, FindOptionsWhere } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
 
 export default class EthnicSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {
-    const reporitory = dataSource.getRepository(Ethnic);
+    const repository = dataSource.getRepository(Ethnic);
 
-    await reporitory.delete({
-      displayIconCreate: false,
-      displayIconDelete: false,
-      displayIconDetail: false,
-      displayIconUpdate: false,
-    } as FindOptionsWhere<Ethnic>);
+    await repository.clear();
 
-    await reporitory.save([
+    await repository.save([
       ETHNIC_KINH,
       ETHNIC_TAY,
       ETHNIC_THAI,

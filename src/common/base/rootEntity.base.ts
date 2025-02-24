@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -21,4 +22,16 @@ export abstract class RootEntity {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true, select: false })
   updatedAt?: Date;
+
+  @Column('boolean', { default: true })
+  displayIconCreate?: boolean;
+
+  @Column('boolean', { default: true })
+  displayIconUpdate?: boolean;
+
+  @Column('boolean', { default: true })
+  displayIconDelete?: boolean;
+
+  @Column('boolean', { default: true })
+  displayIconDetail?: boolean;
 }

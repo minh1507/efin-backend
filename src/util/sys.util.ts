@@ -45,7 +45,6 @@ export default class SysHelper {
       .replace(/\\/g, '/');
 
     const pathSegments = relativePath.split('/');
-    pathSegments.pop();
 
     return 'api' + pathSegments.join('/');
   }

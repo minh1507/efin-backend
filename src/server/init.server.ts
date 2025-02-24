@@ -1,7 +1,6 @@
 import { INestApplication, NestApplicationOptions } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import basicAuth from 'express-basic-auth';
 import 'reflect-metadata';
 import { AppModule } from '../app.module';
 import { consola } from 'consola';
@@ -16,6 +15,8 @@ import {
   generateMigrations,
   runMigrations,
 } from 'src/command/migration.command';
+import { JwtAuthGuard } from '../module/v1/guard/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 class Main {
   private flag: number = 0;
@@ -43,15 +44,15 @@ class Main {
   ): Promise<void> => {
     if (init['SWAGGER.STATUS'] == 'ON') {
       try {
-        app.use(
-          ['/api'],
-          basicAuth({
-            challenge: true,
-            users: {
-              [init['SWAGGER.USER']]: init['SWAGGER.PASSWORD'],
-            },
-          }),
-        );
+        // app.use(
+        //   ['/api'],
+        //   basicAuth({
+        //     challenge: true,
+        //     users: {
+        //       [init['SWAGGER.USER']]: init['SWAGGER.PASSWORD'],
+        //     },
+        //   }),
+        // );
 
         const document = SwaggerModule.createDocument(
           app,
@@ -149,6 +150,11 @@ class Main {
     const init = await this.onInit(app);
 
     app.useGlobalFilters(new HttpExceptionFilter());
+
+    const jwtService = app.get(JwtService);
+    const reflector = app.get(Reflector);
+
+    // app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector));
 
     await this.cors(app);
 

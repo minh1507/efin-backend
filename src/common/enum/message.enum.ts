@@ -4,6 +4,14 @@ export enum MessageEnum {
    */
   INVALID_PASSWORD = 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character',
   REQUIRED_PASSWORD = 'Password is required',
+  NOT_EXIST_PASSWORD = 'Password is not exists',
+
+  /**
+   * Username
+   */
+  REQUIRED_USERNAME = 'Username is required',
+  INVALID_USERNAME = 'Username must be email format',
+  NOT_EXIST_USERNAME = 'Username is not exists',
 
   /**
    * Id
