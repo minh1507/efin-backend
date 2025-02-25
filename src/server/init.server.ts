@@ -143,7 +143,7 @@ class Main {
 
     app.useGlobalInterceptors(new LoggingInterceptor(traceIdService));
 
-    console.clear();
+    // console.clear();
 
     app.get(LoggerService).logBigMessage();
 

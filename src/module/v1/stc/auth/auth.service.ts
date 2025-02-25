@@ -53,9 +53,9 @@ export class AuthService {
       },
     );
 
-    await this.cachingService.setCache(keyAccess, {
+    await this.cachingService.setCache(keyAccess, JSON.stringify({
       role: user.role,
-    });
+    }));
 
     console.log(await this.cachingService.getCache(keyAccess));
 
