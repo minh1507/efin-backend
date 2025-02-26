@@ -4,7 +4,7 @@ import { SetLeds, SetWifi } from './lab1.dto';
 
 @Injectable()
 export class Lab1Api {
-  private readonly API_URL = 'http://192.168.1.208/';
+  private readonly API_URL = 'http://192.168.4.1/';
 
   async setLeds(param: SetLeds): Promise<any> {
     try {
@@ -59,6 +59,24 @@ export class Lab1Api {
   async status(): Promise<any> {
     try {
       const response = await axios.get(this.API_URL + 'wifi-status', {
+        timeout: 5000,
+      });
+
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
+        console.error('API call timeout');
+        return { status: 'off' };
+      }
+
+      console.error('API call failed:', error.message);
+      throw new Error(`API call failed: ${error.message}`);
+    }
+  }
+
+  async dht(): Promise<any> {
+    try {
+      const response = await axios.get(this.API_URL + 'get-dht', {
         timeout: 5000,
       });
 

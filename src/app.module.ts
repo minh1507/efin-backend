@@ -8,6 +8,7 @@ import { I18nMiddleware } from './common/middleware/i18n.middleware';
     SharedModule,
     V1Module,
   ],
+  providers: []
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

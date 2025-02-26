@@ -60,4 +60,13 @@ export class Lab1Controller {
 
     return this.response.base('GET', response);
   }
+
+  @Get('/dht')
+  public async dht() {
+    this.logger.trace(`Start action esp server`, 'CONTROLLER');
+
+    const response = await this.lab1Service.dht();
+
+    return this.response.base('GET', response);
+  }
 }

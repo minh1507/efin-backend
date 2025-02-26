@@ -50,4 +50,10 @@ export class Lab1Service {
 
     return await this.labRepository.getWifi();
   };
+
+  public dht = async (): Promise<any> => {
+    this.logger.trace(`[SERVICE] Start action into esp server`);
+
+    return await this.lab1Api.dht();
+  };
 }
