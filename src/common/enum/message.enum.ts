@@ -35,4 +35,6 @@ export enum MessageEnum {
   MIN_LENGTH_8 = 'Minimum character length must be at least 8 characters',
   MAX_LENGTH_25 = 'Maximum character length must be at least 25 characters',
   MAX_LENGTH_100 = 'Maximum character length must be at least 100 characters',
+
+  USERNAME_EXISTED = 'Username has already been registered',
 }

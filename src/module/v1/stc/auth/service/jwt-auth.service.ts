@@ -1,18 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from 'src/module/share/logger/logger.service';
-import { AuthLogin, AuthResponseLogin } from './auth.dto';
-import { UserRepository } from '../category/user/user.repository';
-import { BadRequestException } from '../../../../common/exeption/bad-request.exeption';
-import { MessageEnum } from '../../../../common/enum/message.enum';
+import {
+  AuthLoginJWT,
+  AuthRegisterJWT,
+  AuthResponseLoginJWT,
+} from '../dto/jwt-auth.dto';
+import { UserRepository } from '../../category/user/user.repository';
+import { BadRequestException } from '../../../../../common/exeption/bad-request.exeption';
+import { MessageEnum } from '../../../../../common/enum/message.enum';
 import * as bcrypt from 'bcrypt';
-import { User } from '../category/user/user.entity';
+import { User } from '../../category/user/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
-import { ConfigService } from '../../../share/config/config.service';
-import { CachingService } from '../../../share/cache/cache.service';
+import { ConfigService } from '../../../../share/config/config.service';
+import { CachingService } from '../../../../share/cache/cache.service';
 
 @Injectable()
-export class AuthService {
+export class JwtAuthService {
   constructor(
     private readonly logger: LoggerService,
     private readonly userRepository: UserRepository,
@@ -21,14 +25,14 @@ export class AuthService {
     private cachingService: CachingService,
   ) {}
 
-  public login = async (param: AuthLogin): Promise<AuthResponseLogin> => {
+  public login = async (param: AuthLoginJWT): Promise<AuthResponseLoginJWT> => {
     this.logger.trace(`[SERVICE] Start login`);
 
     const user = await this.validateAuthLogin(param);
 
     const { accessToken, refreshToken } = await this.generateToken(user);
 
-    return new AuthResponseLogin(accessToken, refreshToken);
+    return new AuthResponseLoginJWT(accessToken, refreshToken);
   };
 
   private generateToken = async (user: User) => {
@@ -123,7 +127,7 @@ export class AuthService {
     return refreshToken;
   }
 
-  private validateAuthLogin = async (param: AuthLogin): Promise<User> => {
+  private validateAuthLogin = async (param: AuthLoginJWT): Promise<User> => {
     const user = await this.userRepository.findByUsername(param.username);
 
     if (!user) {
@@ -149,5 +153,16 @@ export class AuthService {
     );
 
     return user;
+  };
+
+  public register = async (param: AuthRegisterJWT): Promise<void> => {
+    this.logger.trace(`[SERVICE] Start register`);
+
+    const user = await this.userRepository.findByUsername(param.username);
+
+    if (user)
+      throw new BadRequestException(MessageEnum.USERNAME_EXISTED, this.logger);
+
+
   };
 }

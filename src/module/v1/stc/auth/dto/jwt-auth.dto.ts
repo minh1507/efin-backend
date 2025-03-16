@@ -1,12 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { MessageEnum } from '../../../../common/enum/message.enum';
+import { MessageEnum } from '../../../../../common/enum/message.enum';
 
-// class AuthUsername extends PickType(User, ['username']) {}
-//
-// class AuthPassword extends PickType(Secret, ['password']) {}
-
-export class AuthLogin {
+export class AuthLoginJWT {
   @ApiProperty({
     description: 'Username',
     example: 'duongdoican@gmail.com',
@@ -23,7 +19,7 @@ export class AuthLogin {
   password: string;
 }
 
-export class AuthResponseLogin {
+export class AuthResponseLoginJWT {
   accessToken: string;
   refreshToken: string;
 
@@ -31,4 +27,14 @@ export class AuthResponseLogin {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
   }
+}
+
+export class AuthRegisterJWT {
+  @ApiProperty({
+    description: 'Username',
+    example: 'duongdoican@gmail.com',
+    maxLength: 25,
+  })
+  @IsNotEmpty({ message: MessageEnum.REQUIRED_USERNAME })
+  username: string;
 }

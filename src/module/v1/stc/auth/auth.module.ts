@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
+import { JwtAuthController } from './controller/jwt-auth.controller';
 import { ResponseClient } from '../../../../common/response/success.response';
-import { AuthService } from './auth.service';
+import { JwtAuthService } from './service/jwt-auth.service';
 import { UserModule } from '../category/user/user.module';
 import { SecretModule } from '../category/secret/secret.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -26,8 +26,8 @@ import { CachingModule } from '../../../share/cache/cache.module';
       },
     }),
   ],
-  controllers: [AuthController],
-  providers: [ResponseClient, AuthService, JwtAuthGuard],
+  controllers: [JwtAuthController],
+  providers: [ResponseClient, JwtAuthService, JwtAuthGuard],
   exports: [JwtAuthGuard],
 })
 export class AuthModule {}

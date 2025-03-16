@@ -1,8 +1,8 @@
+import * as path from 'path';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
 import { Vi } from 'src/common/trans/vi';
 import { En } from 'src/common/trans/en';
-import * as path from 'path';
 
 export default class SysHelper {
   static pathConfig = (path: string, type: 'entity' | 'schemas'): string => {
@@ -30,7 +30,7 @@ export default class SysHelper {
     }
   }
 
-  static getPath(dir: string): string {
+  static getPath(dir: string, subPath: string | null = null): string {
     const absolutePath = path.resolve(dir);
 
     const keyword = 'module';
@@ -46,6 +46,14 @@ export default class SysHelper {
 
     const pathSegments = relativePath.split('/');
 
-    return 'api' + pathSegments.join('/');
+    const filteredSegments = pathSegments.filter(
+      (segment) => segment !== 'controller',
+    );
+
+    if (subPath) {
+      return 'api' + filteredSegments.join('/') + '/' + subPath;
+    }
+
+    return 'api' + filteredSegments.join('/');
   }
 }
