@@ -16,7 +16,6 @@ import { ConfigService } from '../../../../share/config/config.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        console.log((await configService.getConfig())['TOKEN.SECRET.KEY']);
         return {
           secret: (await configService.getConfig())['TOKEN.SECRET.KEY'],
           signOptions: { expiresIn: '1h' },

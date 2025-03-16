@@ -19,7 +19,6 @@ import { CachingModule } from '../../../share/cache/cache.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        console.log((await configService.getConfig())['TOKEN.SECRET.KEY']);
         return {
           secret: (await configService.getConfig())['TOKEN.SECRET.KEY'],
           signOptions: { expiresIn: '1h' },

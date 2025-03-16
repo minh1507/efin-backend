@@ -4,11 +4,8 @@ import { V1Module } from './module/v1/v1.module';
 import { I18nMiddleware } from './common/middleware/i18n.middleware';
 
 @Module({
-  imports: [
-    SharedModule,
-    V1Module,
-  ],
-  providers: []
+  imports: [SharedModule, V1Module],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -3,7 +3,8 @@ import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { CachingService } from './cache.service';
-import { redisStore } from "cache-manager-redis-store";
+import KeyvRedis from '@keyv/redis';
+import Keyv from 'keyv';
 
 @Module({
   imports: [
@@ -11,20 +12,24 @@ import { redisStore } from "cache-manager-redis-store";
       isGlobal: true,
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService): Promise<CacheModuleOptions> => {
-        const config = await configService.getConfig();
+      useFactory: async (
+        configService: ConfigService,
+      ): Promise<CacheModuleOptions> => {
+        try {
+          const config = await configService.getConfig();
 
-        const store = await redisStore({
-          socket: {
-            host: config['REDIS.HOST'],
-            port: Number(config['REDIS.PORT']),
-          },
-        });
+          const redisStore = new KeyvRedis(
+            `redis://${config['REDIS.HOST']}:${config['REDIS.PORT']}`,
+          );
+          const keyv = new Keyv({ store: redisStore });
 
-        return {
-          store,
-          ttl: 5,
-        };
+          return {
+            stores: [keyv],
+          };
+        } catch (error) {
+          console.error('Redis connection failed:', error);
+          throw error;
+        }
       },
     }),
   ],

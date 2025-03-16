@@ -32,15 +32,23 @@ export class AuthService {
   };
 
   private generateToken = async (user: User) => {
+    this.logger.trace(`[SERVICE] Start generate token`);
+
+    const accessToken = await this.generateAccessToken(user);
+
+    const refreshToken = await this.generateRefreshToken(user);
+
+    return { accessToken, refreshToken };
+  };
+
+  private async generateAccessToken(user: User) {
+    this.logger.trace(`[SERVICE] Start generate access token`);
+
     const expiredAccessToken = (await this.configService.getConfig())[
       'TOKEN.ACCESS.KEY.EXPIRED'
     ];
 
-    const expiredRefreshToken = (await this.configService.getConfig())[
-      'TOKEN.REFRESH.KEY.EXPIRED'
-    ];
-
-    const keyAccess = uuidv4() + user.username;
+    const keyAccess = 'ACCESS_' + user.username;
 
     const accessToken = this.jwtService.sign(
       {
@@ -53,28 +61,67 @@ export class AuthService {
       },
     );
 
-    await this.cachingService.setCache(keyAccess, JSON.stringify({
-      role: user.role,
-    }));
-
-    console.log(await this.cachingService.getCache(keyAccess));
-
-    const keyRefresh = uuidv4() + user.username;
-
-    const refreshToken = this.jwtService.sign(
-      {
-        key: keyRefresh,
-        expired: expiredRefreshToken,
-        createdAt: Date.now(),
-      },
-      {
-        expiresIn: expiredRefreshToken,
-      },
+    await this.cachingService.setCache(
+      keyAccess,
+      JSON.stringify({
+        role: {
+          name: user.role.name,
+        },
+        token: accessToken,
+        key: uuidv4(),
+      }),
+      Number(expiredAccessToken) * 1000,
     );
 
-    await this.cachingService.setCache(keyRefresh, 'refresh');
-    return { accessToken, refreshToken };
-  };
+    this.logger.trace(`[SERVICE] Generate access token successfully`);
+
+    return accessToken;
+  }
+
+  private async generateRefreshToken(user: User) {
+    this.logger.trace(`[SERVICE] Start generate refresh token`);
+
+    const expiredRefreshToken = (await this.configService.getConfig())[
+      'TOKEN.REFRESH.KEY.EXPIRED'
+    ];
+
+    const keyRefresh = 'REFRESH_' + user.username;
+
+    const redisRefreshKey = await this.cachingService.getCache(keyRefresh);
+
+    let refreshToken: string = '';
+
+    if (!redisRefreshKey) {
+      this.logger.trace(`[SERVICE] Not have refresh token`);
+      refreshToken = this.jwtService.sign(
+        {
+          key: keyRefresh,
+          expired: expiredRefreshToken,
+          createdAt: Date.now(),
+        },
+        {
+          expiresIn: expiredRefreshToken,
+        },
+      );
+
+      await this.cachingService.setCache(
+        keyRefresh,
+        JSON.stringify({
+          key: uuidv4(),
+          token: refreshToken,
+        }),
+        Number(expiredRefreshToken) * 1000,
+      );
+    } else {
+      this.logger.trace(`[SERVICE] Already have refresh token`);
+
+      refreshToken = redisRefreshKey['token'];
+    }
+
+    this.logger.trace(`[SERVICE] Generate refresh token successfully`);
+
+    return refreshToken;
+  }
 
   private validateAuthLogin = async (param: AuthLogin): Promise<User> => {
     const user = await this.userRepository.findByUsername(param.username);

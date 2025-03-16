@@ -1,6 +1,5 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { RootEntity } from '../../../../../common/base/rootEntity.base';
-import { User } from '../user/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, Matches, MinLength } from 'class-validator';
 import { MessageEnum } from '../../../../../common/enum/message.enum';

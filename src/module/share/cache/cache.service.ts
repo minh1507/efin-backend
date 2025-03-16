@@ -6,14 +6,13 @@ import { Cache } from 'cache-manager';
 export class CachingService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  async setCache(key: string, value: any, ttl = 60) {
-    console.log('Cache Stores:', this.cacheManager.stores);
+  async setCache(key: string, value: any, ttl = 5000) {
     await this.cacheManager.set(key, value, ttl);
   }
 
   async getCache(key: string) {
     const value = await this.cacheManager.get(key);
-    return value ?? 'No cache found';
+    return value ? JSON.parse(<string>value) : null;
   }
 
   async deleteCache(key: string) {

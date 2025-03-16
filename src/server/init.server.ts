@@ -15,7 +15,6 @@ import {
   generateMigrations,
   runMigrations,
 } from 'src/command/migration.command';
-import { JwtAuthGuard } from '../module/v1/guard/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 
 class Main {
