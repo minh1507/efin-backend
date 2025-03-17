@@ -5,11 +5,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, MaxLength } from 'class-validator';
 import { MessageEnum } from '../../../../../common/enum/message.enum';
 import { Secret } from '../secret/secret.entity';
+import { Lang } from '../../lang/lang.entity';
+import { RefreshToken } from '../../refresh-token/refresh-token.entity';
 
 @Entity()
 export class User extends RootEntity {
   @ManyToOne(() => Role, (role) => role.users)
   role: Role;
+
+  @ManyToOne(() => Lang, (lang) => lang.users)
+  lang: Lang;
 
   @ApiProperty({
     description: 'Username',
@@ -29,4 +34,8 @@ export class User extends RootEntity {
   @OneToOne(() => Secret)
   @JoinColumn()
   secret: Secret;
+
+  @OneToOne(() => RefreshToken)
+  @JoinColumn()
+  refreshToken: RefreshToken;
 }

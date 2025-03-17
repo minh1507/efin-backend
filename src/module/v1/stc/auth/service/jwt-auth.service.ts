@@ -59,6 +59,7 @@ export class JwtAuthService {
         key: keyAccess,
         expired: expiredAccessToken,
         createdAt: Date.now(),
+        lang: user.lang
       },
       {
         expiresIn: expiredAccessToken,
@@ -71,7 +72,6 @@ export class JwtAuthService {
         role: {
           name: user.role.name,
         },
-        token: accessToken,
         key: uuidv4(),
       }),
       Number(expiredAccessToken) * 1000,
