@@ -31,11 +31,11 @@ export class User extends RootEntity {
   })
   username: string;
 
-  @OneToOne(() => Secret)
+  @OneToOne(() => Secret, { cascade: true })
   @JoinColumn()
   secret: Secret;
 
-  @OneToOne(() => RefreshToken)
+  @OneToOne(() => RefreshToken, { cascade: true })
   @JoinColumn()
   refreshToken: RefreshToken;
 }

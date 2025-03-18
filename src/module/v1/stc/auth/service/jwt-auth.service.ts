@@ -14,6 +14,8 @@ import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '../../../../share/config/config.service';
 import { CachingService } from '../../../../share/cache/cache.service';
+import { RefreshToken } from '../../refresh-token/refresh-token.entity';
+import { RefreshTokenRepository } from '../../refresh-token/refresh-token.repository';
 
 @Injectable()
 export class JwtAuthService {
@@ -21,6 +23,7 @@ export class JwtAuthService {
     private readonly logger: LoggerService,
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
     private configService: ConfigService,
     private cachingService: CachingService,
   ) {}
@@ -89,42 +92,50 @@ export class JwtAuthService {
       'TOKEN.REFRESH.KEY.EXPIRED'
     ];
 
-    const keyRefresh = 'REFRESH_' + user.username;
+    if(!user.refreshToken){
+      this.logger.trace(`[SERVICE] Gen new refresh token`);
 
-    const redisRefreshKey = await this.cachingService.getCache(keyRefresh);
+      const hash = await bcrypt.hash(expiredRefreshToken + '_' + uuidv4(), 10);
 
-    let refreshToken: string = '';
+      const now = new Date();
+      const dayInFuture = new Date();
+      dayInFuture.setDate(now.getDate() + 30)
 
-    if (!redisRefreshKey) {
-      this.logger.trace(`[SERVICE] Not have refresh token`);
-      refreshToken = this.jwtService.sign(
-        {
-          key: keyRefresh,
-          expired: expiredRefreshToken,
-          createdAt: Date.now(),
-        },
-        {
-          expiresIn: expiredRefreshToken,
-        },
-      );
+      const refreshToken = {
+        key: hash,
+        validFrom: now,
+        validTo: dayInFuture.toISOString(),
+        user: user
+      }
 
-      await this.cachingService.setCache(
-        keyRefresh,
-        JSON.stringify({
-          key: uuidv4(),
-          token: refreshToken,
-        }),
-        Number(expiredRefreshToken) * 1000,
-      );
-    } else {
-      this.logger.trace(`[SERVICE] Already have refresh token`);
+      await this.refreshTokenRepository.save(refreshToken)
 
-      refreshToken = redisRefreshKey['token'];
+      return hash;
+    }
+
+    if(new Date(user.refreshToken.validFrom) > new Date() || new Date(user.refreshToken.validTo) < new Date()){ 
+      this.logger.trace(`[SERVICE] Token is expired`);
+
+      const refreshToken = user.refreshToken;
+
+      const hash = await bcrypt.hash(expiredRefreshToken + '_' + uuidv4(), 10);
+
+      const now = new Date();
+      const dayInFuture = new Date();
+      dayInFuture.setDate(now.getDate() + 30)
+      
+      refreshToken.key = hash;
+      refreshToken.validFrom = now;
+      refreshToken.validTo = dayInFuture;
+
+      await this.refreshTokenRepository.save(refreshToken)
+
+      return hash;
     }
 
     this.logger.trace(`[SERVICE] Generate refresh token successfully`);
 
-    return refreshToken;
+    return user.refreshToken.key;
   }
 
   private validateAuthLogin = async (param: AuthLoginJWT): Promise<User> => {

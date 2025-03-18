@@ -9,11 +9,13 @@ import { ConfigModule } from '../../../share/config/config.module';
 import { ConfigService } from '../../../share/config/config.service';
 import { JwtAuthGuard } from '../../guard/auth.guard';
 import { CachingModule } from '../../../share/cache/cache.module';
+import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 
 @Module({
   imports: [
     UserModule,
     SecretModule,
+    RefreshTokenModule,
     CachingModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

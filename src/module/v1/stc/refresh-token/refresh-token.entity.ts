@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { RootEntity } from 'src/common/base/rootEntity.base';
+import { User } from '../category/user/user.entity';
 
 @Entity()
 export class RefreshToken extends RootEntity {
@@ -18,4 +19,7 @@ export class RefreshToken extends RootEntity {
     nullable: false,
   })
   validTo: Date;
+
+  @OneToOne(() => User, (user) => user.refreshToken)
+  user: User;
 }

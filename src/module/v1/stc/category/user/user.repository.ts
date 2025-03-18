@@ -28,6 +28,7 @@ export class UserRepository {
       .createQueryBuilder('A')
       .innerJoinAndSelect('A.role', 'B')
       .innerJoinAndSelect('A.secret', 'C')
+      .leftJoinAndSelect('A.refreshToken', 'D')
       .where('A.username = :username', { username: username });
 
     return await query.getOne();
