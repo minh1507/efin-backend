@@ -37,4 +37,8 @@ export enum MessageEnum {
   MAX_LENGTH_100 = 'Maximum character length must be at least 100 characters',
 
   USERNAME_EXISTED = 'Username has already been registered',
+
+  LOGIN_SUCCESS = 'Đăng nhập thành công',
+
+  ACTION_SUCCESS = 'Thao tác thành công'
 }

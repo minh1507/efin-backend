@@ -7,6 +7,7 @@ import SysHelper from 'src/util/sys.util';
 import { AuthLoginJWT, AuthRegisterJWT } from '../dto/jwt-auth.dto';
 import { JwtAuthService } from '../service/jwt-auth.service';
 import { Public } from '../../../decorator/guard.decorator';
+import { MessageEnum } from 'src/common/enum/message.enum';
 
 @Controller(SysHelper.getPath(__dirname, 'jwt'))
 @ApiTags(TagEnum.AUTH_JWT)
@@ -29,7 +30,7 @@ export class JwtAuthController {
 
     const response = await this.authService.login(param);
 
-    return this.response.base('POST', response);
+    return this.response.base('POST', response, true, MessageEnum.LOGIN_SUCCESS);
   }
 
   @Post('/register')

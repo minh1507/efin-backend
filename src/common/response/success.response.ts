@@ -1,15 +1,17 @@
 import { Trans } from '../trans/trans';
 import { LoggerService } from '../../module/share/logger/logger.service';
 import { Injectable } from '@nestjs/common';
+import { MessageEnum } from '../enum/message.enum';
 
 @Injectable()
 export class ResponseClient {
-  constructor(private readonly logger: LoggerService) {}
+  constructor(private readonly logger: LoggerService) { }
 
   base = (
     method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
     data: object | object[] | null = null,
     flag: boolean = true,
+    mes: string | null = null
   ) => {
     return {
       status: {
@@ -17,7 +19,7 @@ export class ResponseClient {
         success: true,
       },
       message: {
-        success: Trans.RA_RESPONSE_SUCCESS,
+        success: mes ? mes : MessageEnum.ACTION_SUCCESS,
       },
       data: data,
       ui: {
@@ -26,6 +28,7 @@ export class ResponseClient {
       trace: {
         id: this.logger.getTraceId(),
       },
+      m: "kk"
     };
   };
 }

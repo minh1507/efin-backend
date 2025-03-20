@@ -14,7 +14,6 @@ import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '../../../../share/config/config.service';
 import { CachingService } from '../../../../share/cache/cache.service';
-import { RefreshToken } from '../../refresh-token/refresh-token.entity';
 import { RefreshTokenRepository } from '../../refresh-token/refresh-token.repository';
 
 @Injectable()
@@ -174,6 +173,11 @@ export class JwtAuthService {
     if (user)
       throw new BadRequestException(MessageEnum.USERNAME_EXISTED, this.logger);
 
+    console.log(param.username)
+    const secret = {
+      password: bcrypt.hash(uuidv4(), 10),
+    };
 
+    // await this.s
   };
 }
