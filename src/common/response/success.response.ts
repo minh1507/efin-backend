@@ -1,4 +1,3 @@
-import { Trans } from '../trans/trans';
 import { LoggerService } from '../../module/share/logger/logger.service';
 import { Injectable } from '@nestjs/common';
 import { MessageEnum } from '../enum/message.enum';

@@ -13,9 +13,5 @@ export default class SecretSeeder implements Seeder {
 }
 
 export const SECRET_ADMIN = {
-  displayIconCreate: false,
-  displayIconDelete: false,
-  displayIconDetail: false,
-  displayIconUpdate: false,
   password: '$2a$12$lwsseM8VJ7EnP1lxFO4qq.P6GGvasXCNfBn.AQhTEFiYrhRDqTtje', // Minlvip123!
 } as Secret;

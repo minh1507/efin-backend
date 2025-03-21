@@ -1,9 +1,9 @@
 import { Column, Entity, OneToOne } from 'typeorm';
-import { RootEntity } from 'src/common/base/rootEntity.base';
 import { User } from '../category/user/user.entity';
+import { PkEntity } from 'src/common/base/pkEntity.base';
 
 @Entity()
-export class RefreshToken extends RootEntity {
+export class RefreshToken extends PkEntity {
   @Column('varchar', {
     nullable: false,
     length: 100

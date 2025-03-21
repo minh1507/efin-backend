@@ -1,11 +1,11 @@
 import { Column, Entity } from 'typeorm';
-import { RootEntity } from '../../../../../common/base/rootEntity.base';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, Matches, MinLength } from 'class-validator';
 import { MessageEnum } from '../../../../../common/enum/message.enum';
+import { PkEntity } from 'src/common/base/pkEntity.base';
 
 @Entity()
-export class Secret extends RootEntity {
+export class Secret extends PkEntity {
   @ApiProperty({
     description: 'Password',
     example: 'Password',

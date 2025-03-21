@@ -4,19 +4,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { MessageEnum } from '../enum/message.enum';
+import { PkEntity } from './pkEntity.base';
 
-export abstract class RootEntity {
-  @ApiProperty({
-    description: 'Id',
-  })
-  @IsNotEmpty({ message: MessageEnum.REQUIRED_ID })
-  @IsString({ message: MessageEnum.INVALID_ID })
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export abstract class RootEntity extends PkEntity {
   @CreateDateColumn({ name: 'created_at', nullable: true, select: false })
   createdAt?: Date;
 

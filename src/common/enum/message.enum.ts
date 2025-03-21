@@ -40,5 +40,7 @@ export enum MessageEnum {
 
   LOGIN_SUCCESS = 'Đăng nhập thành công',
 
-  ACTION_SUCCESS = 'Thao tác thành công'
+  ACTION_SUCCESS = 'Thao tác thành công',
+
+  PARENT_NOT_EXIST = 'Không tìm thấy bản ghi cha'
 }
