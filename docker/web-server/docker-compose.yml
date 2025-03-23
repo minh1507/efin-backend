@@ -9,5 +9,5 @@ services:
       - local
 
 networks:
-  local:
+  bridge:
     external: true
