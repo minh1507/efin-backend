@@ -6,8 +6,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
-      - bridge
+      - vault
 
 networks:
-  bridge:
-    external: true
+  vault:
+    driver: bridge
