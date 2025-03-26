@@ -9,6 +9,16 @@ services:
       TZ: Asia/Saigon
     networks:
       - vault
+  rozy-auth-be-2:
+    build:
+      context: ../..
+      dockerfile: docker/source/Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+      TZ: Asia/Saigon
+    networks:
+      - vault
 
 networks:
   vault:
