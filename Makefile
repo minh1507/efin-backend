@@ -4,8 +4,10 @@ RED = \033[0;31m
 YELLOW = \033[0;33m
 RESET = \033[0m
 
-up: server-up web-server-up
-down: server-down web-server-down 
+# web-server-up
+# web-server-down
+up: server-up 
+down: server-down  
 restart: server-restart
 
 server-up:
