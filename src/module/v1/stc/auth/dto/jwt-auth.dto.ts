@@ -22,10 +22,16 @@ export class AuthLoginJWT {
 export class AuthResponseLoginJWT {
   accessToken: string;
   refreshToken: string;
+  username: string
 
-  constructor(accessToken: string, refreshToken: string) {
+  constructor(
+    accessToken: string, 
+    refreshToken: string,
+    username: string
+  ) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
+    this.username = username;
   }
 }
 

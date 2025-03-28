@@ -34,7 +34,11 @@ export class JwtAuthService {
 
     const { accessToken, refreshToken } = await this.generateToken(user);
 
-    return new AuthResponseLoginJWT(accessToken, refreshToken);
+    return new AuthResponseLoginJWT(
+      accessToken, 
+      refreshToken,
+      user.username
+    );
   };
 
   private generateToken = async (user: User) => {
