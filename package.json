@@ -21,7 +21,14 @@
     "migration:generate": "npm run typeorm migration:generate ./src/database/migrations/generation/new-migration",
     "migration:run": "npm run typeorm migration:run",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d ./src/config/data-source.config.ts",
-    "seed": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d ./src/config/data-source.config.ts"
+    "seed": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d ./src/config/data-source.config.ts",
+    "docker:up": "docker-compose up -d --build",
+    "docker:down": "docker-compose down",
+    "docker:restart": "docker-compose restart",
+    "docker:logs": "docker-compose logs -f",
+    "docker:ps": "docker-compose ps",
+    "vault:init": "powershell -ExecutionPolicy Bypass -File vault-init.ps1",
+    "vault:init-bash": "./vault-init.sh"
   },
   "dependencies": {
     "@keyv/redis": "^4.3.2",

@@ -10,7 +10,8 @@ import IGlobal from 'src/master/global/global.interface';
 
 @Injectable()
 export class MinioService {
-  private bucket: string;
+
+  private bucket!: string; // Use definite assignment assertion
 
   constructor(
     @Inject('MINIO_CONNECTION') private readonly minioClient: Minio.Client,

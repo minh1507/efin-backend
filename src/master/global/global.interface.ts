@@ -1,3 +1,10 @@
+import { GlobalConfig } from '@/common/types/config.types';
+
+/**
+ * @deprecated This interface uses dot notation keys which is not type-safe.
+ * Use GlobalConfig from @/common/types/config.types instead.
+ * This interface will be removed in future versions.
+ */
 interface IGlobal {
   ['CONFIG.DOMAIN']: string;
   ['CONFIG.PORT']: string;
@@ -6,6 +13,8 @@ interface IGlobal {
   ['DATABASE.PASSWORD']: string;
   ['DATABASE.PORT']: string;
   ['DATABASE.USER']: string;
+  ['DATABASE.MIGRATION']: string;
+  ['DATABASE.SEEDING']: string;
   ['SWAGGER.DESCRIPTION']: string;
   ['SWAGGER.PASSWORD']: string;
   ['SWAGGER.STATUS']: string;
@@ -24,3 +33,4 @@ interface IGlobal {
 }
 
 export default IGlobal;
+export { GlobalConfig };

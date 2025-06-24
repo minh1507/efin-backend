@@ -7,5 +7,5 @@ export class RelationTypeBase {
     required: true,
     default: 1,
   })
-  id: number;
+  id!: number;
 }

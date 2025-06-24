@@ -13,7 +13,7 @@ export class CustomValidationPipe extends ValidationPipe {
       transformOptions: { enableImplicitConversion: true },
       forbidNonWhitelisted: false,
       exceptionFactory: (errors: ValidationError[]) => {
-        const validate = errors.reduce((pre, err: ValidationError) => {
+        const validate: Record<string, string> = errors.reduce((pre, err: ValidationError) => {
           const errorType =
             err.constraints != null
               ? err.constraints[
@@ -25,7 +25,7 @@ export class CustomValidationPipe extends ValidationPipe {
 
           pre[err.property] = errorType;
           return pre;
-        }, {});
+        }, {} as Record<string, string>);
 
         return new BadRequestException({
           statusCode: 400,

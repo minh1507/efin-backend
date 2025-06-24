@@ -1,174 +1,219 @@
 import { INestApplication, NestApplicationOptions } from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import 'reflect-metadata';
 import { AppModule } from '../app.module';
 import { consola } from 'consola';
-import { HttpExceptionFilter } from 'src/common/filter/http-exception.filter';
-import { CustomValidationPipe } from 'src/common/pipe/custom.pipe';
-import { ConfigService } from 'src/module/share/config/config.service';
-import IGlobal from 'src/master/global/global.interface';
-import { LoggerService } from 'src/module/share/logger/logger.service';
-import { LoggingInterceptor } from 'src/common/interceptor/logger.interceptor';
-import { TraceIdService } from 'src/module/share/trace/trace.service';
+import { HttpExceptionFilter } from '@/common/filter/http-exception.filter';
+import { CustomValidationPipe } from '@/common/pipe/custom.pipe';
+import { ConfigService } from '@/module/share/config/config.service';
+import IGlobal from '@/master/global/global.interface';
+import { LoggerService } from '@/module/share/logger/logger.service';
+import { LoggingInterceptor } from '@/common/interceptor/logger.interceptor';
+import { TraceIdService } from '@/module/share/trace/trace.service';
 import {
   generateMigrations,
   runMigrations,
-} from 'src/command/migration.command';
-import { JwtService } from '@nestjs/jwt';
+  runSeed,
+} from '@/command/migration.command';
 
-class Main {
-  private flag: number = 0;
 
-  private config: NestApplicationOptions = {
+
+
+class ServerInitializer {
+  private errorCount: number = 0;
+
+  private readonly config: NestApplicationOptions = {
     cors: true,
     logger: ['error', 'warn', 'verbose', 'debug', 'fatal'],
     snapshot: true,
   };
 
-  private pipe = async (app: INestApplication): Promise<void> => {
+  /**
+   * Initialize global pipes
+   */
+  private async setupPipes(app: INestApplication): Promise<void> {
     try {
       app.useGlobalPipes(new CustomValidationPipe());
-      consola.success(' Pipe');
+      consola.success('✓ Pipes configured successfully');
     } catch (error) {
-      consola.log(error);
-      consola.fail(' Pipe');
-      this.flag++;
+      consola.error('✗ Failed to configure pipes:', error);
+      this.errorCount++;
     }
-  };
+  }
 
-  private swagger = async (
-    app: INestApplication,
-    init: IGlobal,
-  ): Promise<void> => {
-    if (init['SWAGGER.STATUS'] == 'ON') {
-      try {
-        // app.use(
-        //   ['/api'],
-        //   basicAuth({
-        //     challenge: true,
-        //     users: {
-        //       [init['SWAGGER.USER']]: init['SWAGGER.PASSWORD'],
-        //     },
-        //   }),
-        // );
-
-        const document = SwaggerModule.createDocument(
-          app,
-          new DocumentBuilder()
-            .setTitle(String(init['SWAGGER.TITLE']))
-            .setDescription(String(init['SWAGGER.DESCRIPTION']))
-            .setVersion('')
-            .addBearerAuth({ in: 'header', type: 'http' }, 'Token')
-            .addSecurityRequirements('Token')
-            .build(),
-        );
-
-        SwaggerModule.setup('api', app, document, {
-          swaggerOptions: {
-            displayOperationId: true,
-            persistAuthorization: true,
-          },
-          customSiteTitle: init['SWAGGER.TITLE'],
-          customCss: '.swagger-ui .topbar {display: none; }',
-        });
-
-        consola.success(' Swagger');
-      } catch (error) {
-        consola.log(error);
-        consola.fail(' Swagger');
-        this.flag++;
-      }
+  /**
+   * Setup Swagger documentation
+   */
+  private async setupSwagger(app: INestApplication, config: IGlobal): Promise<void> {
+    if (config['SWAGGER.STATUS'] !== 'ON') {
+      consola.info('Swagger is disabled');
+      return;
     }
-  };
 
-  private onInit = async (app: INestApplication): Promise<IGlobal> => {
+    try {
+      const documentBuilder = new DocumentBuilder()
+        .setTitle(String(config['SWAGGER.TITLE']))
+        .setDescription(String(config['SWAGGER.DESCRIPTION']))
+        .setVersion('1.0')
+        .addBearerAuth({ in: 'header', type: 'http' }, 'Token')
+        .addSecurityRequirements('Token')
+        .build();
+
+      const document = SwaggerModule.createDocument(app, documentBuilder);
+
+      SwaggerModule.setup('api', app, document, {
+        swaggerOptions: {
+          displayOperationId: true,
+          persistAuthorization: true,
+        },
+        customSiteTitle: config['SWAGGER.TITLE'],
+        customCss: '.swagger-ui .topbar { display: none; }',
+      });
+
+      consola.success('✓ Swagger configured successfully');
+    } catch (error) {
+      consola.error('✗ Failed to configure Swagger:', error);
+      this.errorCount++;
+    }
+  }
+
+  /**
+   * Get application configuration
+   */
+  private async getAppConfig(app: INestApplication): Promise<IGlobal> {
     return app.get(ConfigService).getConfig();
-  };
+  }
 
-  private cors = async (app: INestApplication) => {
+  /**
+   * Setup CORS configuration
+   */
+  private async setupCors(app: INestApplication): Promise<void> {
     app.enableCors({
       origin: true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       credentials: true,
       allowedHeaders: 'Content-Type, Accept, Authorization',
     });
-  };
+    consola.success('✓ CORS configured successfully');
+  }
 
-  private startLog = async () => {
+  /**
+   * Display startup logs
+   */
+  private displayStartupLogs(): void {
     consola.log('\n');
-    consola.start(' Booting server');
-  };
+    consola.start('🚀 Booting EFIN Backend Server');
+  }
 
-  private endLog = async (init: IGlobal) => {
-    if (!this.flag) {
-      consola.box(`Server is running on port ${init['CONFIG.PORT'] || 3100}`);
+  /**
+   * Display completion logs
+   */
+  private displayCompletionLogs(config: IGlobal): void {
+    if (this.errorCount === 0) {
+      consola.box(`🎉 Server is running successfully on port ${config['CONFIG.PORT'] || 3100}`);
     } else {
-      consola.error(' Config server failed');
+      consola.error(`❌ Server started with ${this.errorCount} configuration errors`);
     }
 
-    consola.info(
-      'Api: http://' + init['CONFIG.DOMAIN'] + ':' + init['CONFIG.PORT'],
-    );
-    consola.info(
-      'Swagger: http://' +
-        init['CONFIG.DOMAIN'] +
-        ':' +
-        init['CONFIG.PORT'] +
-        '/api',
-    );
-
+    const baseUrl = `http://${config['CONFIG.DOMAIN']}:${config['CONFIG.PORT']}`;
+    consola.info(`📡 API: ${baseUrl}`);
+    consola.info(`📚 Swagger: ${baseUrl}/api`);
     consola.log('');
-  };
+  }
 
-  private listener = async (app: INestApplication, init: IGlobal) => {
-    await app.listen(init['CONFIG.PORT'] || 3100, '0.0.0.0');
-  };
+  /**
+   * Start application listener
+   */
+  private async startListener(app: INestApplication, config: IGlobal): Promise<void> {
+    const port = config['CONFIG.PORT'] || 3100;
+    await app.listen(port, '0.0.0.0');
+    consola.success(`✓ Server listening on port ${port}`);
+  }
 
-  private migration = async (init: IGlobal) => {
-    if (init['DATABASE.MIGRATION'] == 'true') {
+  /**
+   * Run database migrations and seeding
+   */
+  private async runDatabaseOperations(config: IGlobal): Promise<void> {
+    if (config['DATABASE.MIGRATION'] !== 'true') {
+      consola.info('Database migrations disabled');
+      return;
+    }
+
+    try {
+      consola.start('Running database migrations...');
       await runMigrations();
-
       await generateMigrations();
 
-      consola.log('');
+      if (config['DATABASE.SEEDING'] === 'true') {
+        consola.start('Running database seeding...');
+        await runSeed();
+      }
+
+      consola.success('✓ Database operations completed');
+    } catch (error) {
+      consola.error('✗ Database operations failed:', error);
+      this.errorCount++;
     }
-  };
 
-  run = async (): Promise<void> => {
-    const app = await NestFactory.create(AppModule, this.config);
+    consola.log('');
+  }
 
-    const traceIdService = await app.resolve(TraceIdService);
-
-    app.useGlobalInterceptors(new LoggingInterceptor(traceIdService));
-
-    // console.clear();
-
-    app.get(LoggerService).logBigMessage();
-
-    const init = await this.onInit(app);
-
+  /**
+   * Setup global filters, guards, and interceptors
+   */
+  private async setupGlobalFeatures(app: INestApplication): Promise<void> {
+    // Global exception filter
     app.useGlobalFilters(new HttpExceptionFilter());
 
-    const jwtService = app.get(JwtService);
-    const reflector = app.get(Reflector);
+    // Global interceptors
+    const traceIdService = await app.resolve(TraceIdService);
+    app.useGlobalInterceptors(new LoggingInterceptor(traceIdService));
 
+    // Note: Global guards can be uncommented when needed
+    // const jwtService = app.get(JwtService);
+    // const reflector = app.get(Reflector);
     // app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector));
 
-    await this.cors(app);
+    consola.success('✓ Global features configured successfully');
+  }
 
-    await this.startLog();
+  /**
+   * Main server initialization method
+   */
+  public async run(): Promise<void> {
+    try {
+      const app = await NestFactory.create(AppModule, this.config);
 
-    await this.pipe(app);
+      // Display initial logs
+      this.displayStartupLogs();
 
-    await this.swagger(app, init);
+      // Get logger service and display big message
+      app.get(LoggerService).logBigMessage();
 
-    await this.listener(app, init);
+      // Get application configuration
+      const config = await this.getAppConfig(app);
 
-    await this.endLog(init);
+      // Setup all application features
+      await this.setupGlobalFeatures(app);
+      await this.setupCors(app);
+      await this.setupPipes(app);
+      await this.setupSwagger(app, config);
 
-    await this.migration(init);
-  };
+      // Start the server
+      await this.startListener(app, config);
+
+      // Display completion logs
+      this.displayCompletionLogs(config);
+
+      // Run database operations
+      await this.runDatabaseOperations(config);
+
+    } catch (error) {
+      consola.fatal('Failed to start server:', error);
+      process.exit(1);
+    }
+  }
 }
 
-export default Main;
+export default ServerInitializer;

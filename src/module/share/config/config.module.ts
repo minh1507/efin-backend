@@ -12,8 +12,8 @@ import { getPostgresOptions } from 'src/config/data-source.config';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
-        return getPostgresOptions(configService);
+      useFactory: async () => {
+        return getPostgresOptions();
       },
     }),
   ],

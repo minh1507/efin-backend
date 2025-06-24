@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { PkEntity } from './pkEntity.base';

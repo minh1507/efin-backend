@@ -17,7 +17,7 @@ export abstract class BaseEntity extends RootEntity {
     nullable: false,
     unique: true,
   })
-  code: string;
+  code!: string;
 
   @ApiProperty({
     description: 'Name',
@@ -30,5 +30,5 @@ export abstract class BaseEntity extends RootEntity {
     length: 100,
     nullable: false,
   })
-  name: string;
+  name!: string;
 }

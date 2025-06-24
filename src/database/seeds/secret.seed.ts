@@ -1,17 +1,38 @@
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
+import { Logger } from '@nestjs/common';
 import { Secret } from '../../module/v1/stc/category/secret/secret.entity';
 
 export default class SecretSeeder implements Seeder {
-  public async run(dataSource: DataSource): Promise<any> {
-    const repository = dataSource.getRepository(Secret);
+  private readonly logger = new Logger(SecretSeeder.name);
 
-    await repository.delete({});
+  public async run(dataSource: DataSource): Promise<void> {
+    try {
+      this.logger.log('🌱 Starting Secret seeding...');
+      
+      const repository = dataSource.getRepository(Secret);
 
-    await repository.save([SECRET_ADMIN]);
+      // Count existing secrets for information
+      const existingCount = await repository.count();
+      
+      if (existingCount > 0) {
+        this.logger.log(`ℹ️  Found ${existingCount} existing secrets - keeping them intact`);
+      } else {
+        this.logger.log('ℹ️  No existing secrets found');
+      }
+      
+      this.logger.log('✅ Secret seeding completed (no default secrets created for security)');
+    } catch (error) {
+      this.logger.error('❌ Secret seeding failed:', error);
+      throw error;
+    }
   }
 }
 
-export const SECRET_ADMIN = {
-  password: '$2a$12$lwsseM8VJ7EnP1lxFO4qq.P6GGvasXCNfBn.AQhTEFiYrhRDqTtje', // Minlvip123!
-} as Secret;
+/**
+ * Example secret for reference (password: Minlvip123!)
+ * This is not automatically seeded for security reasons
+ */
+export const SECRET_ADMIN: Partial<Secret> = {
+  password: '$2a$12$lwsseM8VJ7EnP1lxFO4qq.P6GGvasXCNfBn.AQhTEFiYrhRDqTtje',
+};

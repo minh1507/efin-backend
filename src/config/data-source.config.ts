@@ -1,8 +1,4 @@
-import NodeVault from 'node-vault';
 import { join } from 'path';
-import IGlobal from 'src/master/global/global.interface';
-import { ConfigService } from 'src/module/share/config/config.service';
-import { VaultService } from 'src/module/share/vault/vault.service';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
 import { config } from 'dotenv';
@@ -19,20 +15,19 @@ const MIGRATION = join(
 );
 const V1 = join(__dirname, '..', 'module', 'v1', `/**/*.entity{.ts,.js}`);
 
-export async function getPostgresOptions(
-  configService: ConfigService,
-): Promise<DataSourceOptions & SeederOptions> {
-  const dbConfig: IGlobal = await configService.getConfig();
-
+export function getPostgresOptions(): DataSourceOptions & SeederOptions {
+  // Check if running in Docker (có biến môi trường MAIN.DOMAIN)
+  const isDocker = process.env['MAIN.DOMAIN']?.includes('vault:8200');
+  
   return {
     type: 'postgres',
-    host: dbConfig['DATABASE.HOST'],
-    port: Number(dbConfig['DATABASE.PORT']),
-    username: dbConfig['DATABASE.USER'],
-    password: dbConfig['DATABASE.PASSWORD'],
-    database: dbConfig['DATABASE.NAME'],
+    host: isDocker ? 'postgres' : (process.env.DATABASE_HOST || 'localhost'),
+    port: Number(process.env.DATABASE_PORT) || 5432,
+    username: process.env.DATABASE_USER || 'postgres',
+    password: isDocker ? '123456' : (process.env.DATABASE_PASSWORD || 'password'),
+    database: isDocker ? 'efin_db' : (process.env.DATABASE_NAME || 'efin'),
     entities: [V1],
-    synchronize: false,
+    synchronize: true,
     logging: ['error'],
     seeds: [MainSeeder],
     migrations: [MIGRATION],
@@ -40,28 +35,9 @@ export async function getPostgresOptions(
   };
 }
 
-export async function createDataSource(
-  configService: ConfigService,
-): Promise<DataSource> {
-  const postgresOptions = await getPostgresOptions(configService);
-  return new DataSource({
-    ...postgresOptions,
-  });
-}
-
-async function initializeDataSource() {
-  const vault = new VaultService(
-    NodeVault({
-      endpoint: process.env['MAIN.DOMAIN'],
-      token: process.env['MAIN.SECRET'],
-    }),
-  );
-
-  const configService = new ConfigService(vault);
-
-  const postgresOptions = await getPostgresOptions(configService);
-
+export function createDataSource(): DataSource {
+  const postgresOptions = getPostgresOptions();
   return new DataSource(postgresOptions);
 }
 
-export const AppDataSource = initializeDataSource();
+export const AppDataSource = createDataSource();

@@ -1,19 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LoggerService } from 'src/module/share/logger/logger.service';
 import { RefreshToken } from './refresh-token.entity';
 
 @Injectable()
 export class RefreshTokenRepository {
   constructor(
-    @InjectRepository(RefreshToken) private repository: Repository<RefreshToken>,
-    private readonly logger: LoggerService,
+    @InjectRepository(RefreshToken)
+    private readonly repository: Repository<RefreshToken>,
   ) {}
 
-  public save = async (data: object): Promise<void> => {
-    this.logger.trace('Start save exist refresh token', 'REPOSITORY');
+  async save(data: Partial<RefreshToken>): Promise<RefreshToken> {
+    return await this.repository.save(data);
+  }
 
-    const query = this.repository.save(data);
-  };
+  async findOne(conditions: Partial<RefreshToken>): Promise<RefreshToken | null> {
+    return await this.repository.findOne({ where: conditions });
+  }
+
+  async remove(token: RefreshToken): Promise<void> {
+    await this.repository.remove(token);
+  }
 }

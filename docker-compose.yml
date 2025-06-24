@@ -1,0 +1,145 @@
+
+
+services:
+  # Database - PostgreSQL thay thế MariaDB
+  postgres:
+    image: postgres:15
+    container_name: efin_postgres
+    environment:
+      POSTGRES_DB: efin_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      TZ: Asia/Saigon
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - efin_network
+
+  # MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: efin_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: Minlvip123
+      TZ: Asia/Saigon
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - efin_network
+
+  # MinIO for file storage
+  minio:
+    image: minio/minio:latest
+    container_name: efin_minio
+    environment:
+      MINIO_ROOT_USER: admin123
+      MINIO_ROOT_PASSWORD: Minlvip123!
+      TZ: Asia/Saigon
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: minio server /data --address ":9000" --console-address ":9001"
+    networks:
+      - efin_network
+
+  # HashiCorp Vault for secrets management
+  vault:
+    image: hashicorp/vault:latest
+    container_name: efin_vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: myroot
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      TZ: Asia/Saigon
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:/vault/data
+      - vault_config:/vault/config
+    networks:
+      - efin_network
+    healthcheck:
+      test: ["CMD-SHELL", "VAULT_ADDR=http://localhost:8200 vault status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Vault Initializer - Tự động setup secrets
+  vault-init:
+    image: hashicorp/vault:latest
+    container_name: efin_vault_init
+    depends_on:
+      vault:
+        condition: service_healthy
+    volumes:
+      - ./vault-init.sh:/vault-init.sh:ro
+    networks:
+      - efin_network
+    command: sh /vault-init.sh
+    restart: "no"
+
+  # NestJS Backend Application
+  efin-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: efin_backend
+    environment:
+      TZ: Asia/Saigon
+      MAIN.DOMAIN: http://vault:8200
+      MAIN.SECRET: myroot
+      MAIN.PATH: kv/data/efin/config
+      NODE_ENV: development
+    ports:
+      - "4600:4600"
+    depends_on:
+      postgres:
+        condition: service_started
+      mongodb:
+        condition: service_started
+      minio:
+        condition: service_started
+      vault-init:
+        condition: service_completed_successfully
+    networks:
+      - efin_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4600/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:latest
+    container_name: efin_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      efin-backend:
+        condition: service_healthy
+    networks:
+      - efin_network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  minio_data:
+  vault_data:
+  vault_config:
+
+networks:
+  efin_network:
+    driver: bridge 

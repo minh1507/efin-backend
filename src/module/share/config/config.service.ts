@@ -7,6 +7,9 @@ export class ConfigService {
   constructor(private readonly vaultService: VaultService) {}
 
   async getConfig(): Promise<IGlobal> {
-    return await this.vaultService.getSecret();
+    const vaultSecret = await this.vaultService.getSecret();
+    
+    // Convert VaultSecret to IGlobal format
+    return vaultSecret as unknown as IGlobal;
   }
 }
