@@ -1,7 +1,7 @@
 FROM node:18.13.0-alpine
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install curl for health checks and build dependencies for native modules
+RUN apk add --no-cache curl python3 make g++
 
 WORKDIR /app
 

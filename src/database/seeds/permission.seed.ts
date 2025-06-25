@@ -28,32 +28,32 @@ export default class PermissionSeeder implements Seeder {
 
       const basePermissions = [
         // User management permissions
-        { resource: 'users', action: 'create', description: 'Can create new users' },
-        { resource: 'users', action: 'read', description: 'Can view user details' },
-        { resource: 'users', action: 'update', description: 'Can update user information' },
-        { resource: 'users', action: 'delete', description: 'Can delete users' },
-        { resource: 'users', action: 'list', description: 'Can list all users' },
+        { code: 'USER_CREATE', name: 'Create Users', resource: 'users', action: 'create', description: 'Can create new users' },
+        { code: 'USER_READ', name: 'Read Users', resource: 'users', action: 'read', description: 'Can view user details' },
+        { code: 'USER_UPDATE', name: 'Update Users', resource: 'users', action: 'update', description: 'Can update user information' },
+        { code: 'USER_DELETE', name: 'Delete Users', resource: 'users', action: 'delete', description: 'Can delete users' },
+        { code: 'USER_LIST', name: 'List Users', resource: 'users', action: 'list', description: 'Can list all users' },
 
         // Role management permissions
-        { resource: 'roles', action: 'create', description: 'Can create new roles' },
-        { resource: 'roles', action: 'read', description: 'Can view role details' },
-        { resource: 'roles', action: 'update', description: 'Can update role information' },
-        { resource: 'roles', action: 'delete', description: 'Can delete roles' },
-        { resource: 'roles', action: 'list', description: 'Can list all roles' },
+        { code: 'ROLE_CREATE', name: 'Create Roles', resource: 'roles', action: 'create', description: 'Can create new roles' },
+        { code: 'ROLE_READ', name: 'Read Roles', resource: 'roles', action: 'read', description: 'Can view role details' },
+        { code: 'ROLE_UPDATE', name: 'Update Roles', resource: 'roles', action: 'update', description: 'Can update role information' },
+        { code: 'ROLE_DELETE', name: 'Delete Roles', resource: 'roles', action: 'delete', description: 'Can delete roles' },
+        { code: 'ROLE_LIST', name: 'List Roles', resource: 'roles', action: 'list', description: 'Can list all roles' },
 
         // Permission management permissions
-        { resource: 'permissions', action: 'create', description: 'Can create new permissions' },
-        { resource: 'permissions', action: 'read', description: 'Can view permission details' },
-        { resource: 'permissions', action: 'update', description: 'Can update permission information' },
-        { resource: 'permissions', action: 'delete', description: 'Can delete permissions' },
-        { resource: 'permissions', action: 'list', description: 'Can list all permissions' },
+        { code: 'PERM_CREATE', name: 'Create Permissions', resource: 'permissions', action: 'create', description: 'Can create new permissions' },
+        { code: 'PERM_READ', name: 'Read Permissions', resource: 'permissions', action: 'read', description: 'Can view permission details' },
+        { code: 'PERM_UPDATE', name: 'Update Permissions', resource: 'permissions', action: 'update', description: 'Can update permission information' },
+        { code: 'PERM_DELETE', name: 'Delete Permissions', resource: 'permissions', action: 'delete', description: 'Can delete permissions' },
+        { code: 'PERM_LIST', name: 'List Permissions', resource: 'permissions', action: 'list', description: 'Can list all permissions' },
 
         // Menu management permissions
-        { resource: 'menus', action: 'create', description: 'Can create new menus' },
-        { resource: 'menus', action: 'read', description: 'Can view menu details' },
-        { resource: 'menus', action: 'update', description: 'Can update menu information' },
-        { resource: 'menus', action: 'delete', description: 'Can delete menus' },
-        { resource: 'menus', action: 'list', description: 'Can list all menus' },
+        { code: 'MENU_CREATE', name: 'Create Menus', resource: 'menus', action: 'create', description: 'Can create new menus' },
+        { code: 'MENU_READ', name: 'Read Menus', resource: 'menus', action: 'read', description: 'Can view menu details' },
+        { code: 'MENU_UPDATE', name: 'Update Menus', resource: 'menus', action: 'update', description: 'Can update menu information' },
+        { code: 'MENU_DELETE', name: 'Delete Menus', resource: 'menus', action: 'delete', description: 'Can delete menus' },
+        { code: 'MENU_LIST', name: 'List Menus', resource: 'menus', action: 'list', description: 'Can list all menus' },
       ];
 
       // Create permissions for each client
@@ -61,23 +61,30 @@ export default class PermissionSeeder implements Seeder {
         this.logger.log(`🔄 Creating permissions for client: ${client.name}`);
         
         for (const permissionData of basePermissions) {
+          // Create unique code per client (keep it under 25 chars)
+          const clientPrefix = client.clientId.split('-')[0].toUpperCase(); // auth, mobile, web
+          const uniqueCode = `${clientPrefix}_${permissionData.code}`;
+          
           const existingPermission = await permissionRepository.findOne({
             where: { 
               clientId: client.id,
-              resource: permissionData.resource,
-              action: permissionData.action 
+              code: uniqueCode
             },
           });
 
           if (!existingPermission) {
             const permission = permissionRepository.create({
               clientId: client.id,
-              ...permissionData,
+              code: uniqueCode,
+              name: permissionData.name,
+              resource: permissionData.resource,
+              action: permissionData.action,
+              description: permissionData.description,
             });
             await permissionRepository.save(permission);
-            this.logger.log(`✅ Created permission: ${permissionData.resource}:${permissionData.action} for ${client.name}`);
+            this.logger.log(`✅ Created permission: ${uniqueCode} (${permissionData.resource}:${permissionData.action}) for ${client.name}`);
           } else {
-            this.logger.log(`ℹ️  Permission already exists: ${permissionData.resource}:${permissionData.action} for ${client.name}`);
+            this.logger.log(`ℹ️  Permission already exists: ${uniqueCode} for ${client.name}`);
           }
         }
       }

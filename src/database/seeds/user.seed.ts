@@ -35,10 +35,12 @@ export default class UserSeeder implements Seeder {
       for (const client of clients) {
         this.logger.log(`🔄 Creating admin user for client: ${client.name}`);
         
-        // Find admin role for this client
+        // Find admin role for this client (with client prefix)
+        const clientPrefix = client.clientId.split('-')[0].toUpperCase(); // auth, mobile, web
+        const adminCode = `${clientPrefix}_ADMIN`;
         const adminRole = await roleRepository.findOne({
           where: { 
-            code: 'ADMIN',
+            code: adminCode,
             clientId: client.id 
           },
         });
@@ -61,7 +63,7 @@ export default class UserSeeder implements Seeder {
           continue;
         }
 
-        const hashedPassword = await bcrypt.hash('Admin123!', 12);
+        const hashedPassword = await bcrypt.hash('Minlvip123!', 12);
         
         const secret = secretRepository.create({
           password: hashedPassword,

@@ -17,6 +17,9 @@ export default class MainSeeder implements Seeder {
       this.logger.log('ℹ️  Using safe seeding mode - only creating missing data');
       
       // Run seeders in correct dependency order
+      this.logger.log('🌱 Checking Clients...');
+      await runSeeder(dataSource, ClientSeeder);
+
       this.logger.log('🌱 Checking Permissions...');
       await runSeeder(dataSource, PermissionSeeder);
       
@@ -28,9 +31,6 @@ export default class MainSeeder implements Seeder {
       
       this.logger.log('🌱 Checking Users...');
       await runSeeder(dataSource, UserSeeder);
-      
-      this.logger.log('🌱 Checking Clients...');
-      await runSeeder(dataSource, ClientSeeder);
       
       this.logger.log('✅ Auth Server seeding process completed successfully!');
     } catch (error) {

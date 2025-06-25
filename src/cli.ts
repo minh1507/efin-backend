@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { exportSimpleApiDocumentation } from './command/export-doc.command';
+import { runDatabaseSeeding } from './command/seeding.command';
 import consola from 'consola';
 
 async function main() {
@@ -13,9 +14,14 @@ async function main() {
         await exportSimpleApiDocumentation();
         break;
       
+      case 'seed':
+        await runDatabaseSeeding();
+        break;
+      
       default:
         consola.info('Available commands:');
         consola.info('  export-doc  - Export API documentation to AsciiDoc format');
+        consola.info('  seed        - Run database seeding');
         break;
     }
   } catch (error) {

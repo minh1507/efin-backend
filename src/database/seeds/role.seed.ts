@@ -49,22 +49,28 @@ export default class RoleSeeder implements Seeder {
         this.logger.log(`🔄 Creating roles for client: ${client.name}`);
         
         for (const roleData of baseRoles) {
+          // Create unique code per client (keep it under 25 chars)
+          const clientPrefix = client.clientId.split('-')[0].toUpperCase(); // auth, mobile, web
+          const uniqueCode = `${clientPrefix}_${roleData.code}`;
+          
           const existingRole = await roleRepository.findOne({
             where: { 
               clientId: client.id,
-              code: roleData.code 
+              code: uniqueCode
             },
           });
 
           if (!existingRole) {
             const role = roleRepository.create({
               clientId: client.id,
-              ...roleData,
+              code: uniqueCode,
+              name: roleData.name,
+              description: roleData.description,
             });
             await roleRepository.save(role);
-            this.logger.log(`✅ Created role: ${roleData.name} for ${client.name}`);
+            this.logger.log(`✅ Created role: ${uniqueCode} (${roleData.name}) for ${client.name}`);
           } else {
-            this.logger.log(`ℹ️  Role already exists: ${roleData.name} for ${client.name}`);
+            this.logger.log(`ℹ️  Role already exists: ${uniqueCode} for ${client.name}`);
           }
         }
       }

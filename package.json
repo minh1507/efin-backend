@@ -29,7 +29,8 @@
     "docker:ps": "docker-compose ps",
     "vault:init": "powershell -ExecutionPolicy Bypass -File vault-init.ps1",
     "vault:init-bash": "./vault-init.sh",
-    "export-doc": "ts-node -r tsconfig-paths/register src/cli.ts export-doc"
+    "export-doc": "ts-node -r tsconfig-paths/register src/cli.ts export-doc",
+    "seed:manual": "ts-node -r tsconfig-paths/register src/cli.ts seed"
   },
   "dependencies": {
     "@keyv/redis": "^4.3.2",
