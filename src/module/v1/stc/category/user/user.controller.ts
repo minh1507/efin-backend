@@ -17,7 +17,7 @@ import { SimpleJwtGuard } from '../../../guard/simple-jwt.guard';
 import SysHelper from 'src/util/sys.util';
 
 @ApiTags('Users')
-@Controller(SysHelper.getPath(__dirname, 'users'))
+@Controller(SysHelper.getPath(__dirname))
 @UseGuards(SimpleJwtGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -19,7 +19,7 @@ import SysHelper from 'src/util/sys.util';
 @ApiTags('Clients')
 @ApiBearerAuth()
 @UseGuards(SimpleJwtGuard)
-@Controller(SysHelper.getPath(__dirname, 'clients'))
+@Controller(SysHelper.getPath(__dirname))
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 

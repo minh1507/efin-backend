@@ -17,7 +17,7 @@ import { SimpleJwtGuard } from '../../guard/simple-jwt.guard';
 import SysHelper from 'src/util/sys.util';
 
 @ApiTags('Permissions')
-@Controller(SysHelper.getPath(__dirname, 'permissions'))
+@Controller(SysHelper.getPath(__dirname))
 @UseGuards(SimpleJwtGuard)
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}

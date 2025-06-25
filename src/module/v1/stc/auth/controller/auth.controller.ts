@@ -12,7 +12,7 @@ import { AuthService } from '../service/auth.service';
 import { Public } from '../../../decorator/guard.decorator';
 import { SimpleJwtGuard } from '../../../guard/simple-jwt.guard';
 
-@Controller(SysHelper.getPath(__dirname, 'auth'))
+@Controller(SysHelper.getPath(__dirname))
 @ApiTags('Authentication')
 export class AuthController {
   constructor(

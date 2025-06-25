@@ -124,7 +124,7 @@ services:
     image: nginx:latest
     container_name: efin_nginx
     ports:
-      - "80:80"
+      - "5000:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:

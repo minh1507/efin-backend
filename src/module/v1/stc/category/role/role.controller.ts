@@ -17,7 +17,7 @@ import { SimpleJwtGuard } from '../../../guard/simple-jwt.guard';
 import SysHelper from 'src/util/sys.util';
 
 @ApiTags('Roles')
-@Controller(SysHelper.getPath(__dirname, 'roles'))
+@Controller(SysHelper.getPath(__dirname))
 @UseGuards(SimpleJwtGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

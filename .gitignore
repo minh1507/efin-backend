@@ -41,3 +41,6 @@ lerna-debug.log*
 
 dump.rdb
 src/database/migrations/generation
+
+# Generated documentation files
+*.adoc

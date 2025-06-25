@@ -17,7 +17,7 @@ import { SimpleJwtGuard } from '../../guard/simple-jwt.guard';
 import SysHelper from 'src/util/sys.util';
 
 @ApiTags('Menus')
-@Controller(SysHelper.getPath(__dirname, 'menus'))
+@Controller(SysHelper.getPath(__dirname))
 @UseGuards(SimpleJwtGuard)
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
